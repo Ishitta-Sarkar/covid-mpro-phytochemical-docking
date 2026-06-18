@@ -81,12 +81,12 @@ Result Interpretation
 
 ## Results
 
-The repository includes a ranked ligand dataset generated from docking affinity values against SARS-CoV-2 main protease.
+The repository includes a ranked ligand dataset generated from predicted docking affinity values against SARS-CoV-2 main protease.
 
 ### Ranked Ligands
 
 | Rank | Ligand | Binding Affinity (kcal/mol) |
-|--------|--------|--------|
+|------|---------|----------------------------|
 | 1 | Quercetin | -8.1 |
 | 2 | Curcumin | -7.8 |
 | 3 | Kaempferol | -7.6 |
@@ -95,7 +95,13 @@ The repository includes a ranked ligand dataset generated from docking affinity 
 
 Lower docking scores indicate stronger predicted binding affinity in this simplified virtual screening workflow.
 
-The repository also contains a visualization script for generating docking score comparison plots.
+### Binding Affinity Visualization
+
+The figure below compares the predicted docking scores of selected phytochemicals against SARS-CoV-2 main protease.
+
+![Binding Affinity Plot](results/binding_affinity_plot.png)
+
+The visualization highlights Quercetin as the highest-ranked ligand among the compounds included in this demonstration workflow.
 
 ## Technologies and Tools
 
@@ -135,6 +141,7 @@ Any compound identified through computational docking requires further experimen
 
 Planned extensions include:
 
+- Molecular interaction visualization and binding pose analysis
 - Integration of real AutoDock Vina output files
 - Protein-ligand interaction summaries
 - Binding residue analysis
@@ -150,7 +157,7 @@ Planned extensions include:
 
 B.Tech Biotechnology
 
-Areas of Interest:
+### Areas of Interest
 
 - Bioinformatics
 - Computational Biology
