@@ -1,0 +1,6 @@
+ligand_name,target_protein,pdb_id,binding_affinity_kcal_mol,remarks
+Quercetin,SARS-CoV-2 Main Protease,6LU7,-8.1,Strong predicted binding affinity
+Curcumin,SARS-CoV-2 Main Protease,6LU7,-7.8,Good predicted binding affinity
+Kaempferol,SARS-CoV-2 Main Protease,6LU7,-7.6,Good predicted binding affinity
+Andrographolide,SARS-CoV-2 Main Protease,6LU7,-7.2,Moderate predicted binding affinity
+Berberine,SARS-CoV-2 Main Protease,6LU7,-6.9,Moderate predicted binding affinity
