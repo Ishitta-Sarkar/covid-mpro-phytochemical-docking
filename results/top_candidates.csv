@@ -1,0 +1,6 @@
+rank,ligand_name,binding_affinity_kcal_mol,interpretation
+1,Quercetin,-8.1,Highest predicted binding affinity among selected ligands
+2,Curcumin,-7.8,Good predicted binding affinity
+3,Kaempferol,-7.6,Good predicted binding affinity
+4,Andrographolide,-7.2,Moderate predicted binding affinity
+5,Berberine,-6.9,Moderate predicted binding affinity
