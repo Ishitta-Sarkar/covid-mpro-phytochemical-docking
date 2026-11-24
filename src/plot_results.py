@@ -1,34 +1,12 @@
-import csv
-import matplotlib.pyplot as plt
+"""Write ``results/vina_scores.png`` from the results table."""
+
+from mpro_docking.paths import data_dir, results_dir
+from mpro_docking.plotting import plot_vina_scores
 
 
-def load_docking_results(file_path):
-    ligands = []
-    scores = []
-
-    with open(file_path, "r", encoding="utf-8") as file:
-        reader = csv.DictReader(file)
-
-        for row in reader:
-            ligands.append(row["ligand_name"])
-            scores.append(float(row["binding_affinity_kcal_mol"]))
-
-    return ligands, scores
-
-
-def plot_binding_affinity():
-    ligands, scores = load_docking_results("data/docking_results.csv")
-
-    plt.figure(figsize=(9, 5))
-    plt.bar(ligands, scores)
-    plt.xlabel("Ligands")
-    plt.ylabel("Binding Affinity (kcal/mol)")
-    plt.title("Docking Score Comparison of Selected Phytochemicals")
-    plt.xticks(rotation=30, ha="right")
-    plt.tight_layout()
-    plt.savefig("results/binding_affinity_plot.png", dpi=300)
-    plt.show()
+def main() -> None:
+    plot_vina_scores(data_dir() / "docking_results.csv", results_dir() / "vina_scores.png")
 
 
 if __name__ == "__main__":
-    plot_binding_affinity()
+    main()

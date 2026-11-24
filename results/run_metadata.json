@@ -1,0 +1,109 @@
+{
+  "software_version": "1.0.0",
+  "date_utc": "2026-11-24",
+  "platform": "Linux-6.12.113+-x86_64-with-glibc2.39",
+  "python": "3.11.18",
+  "vina_package": "1.2.7",
+  "vina_binary": "AutoDock Vina f458505-mod",
+  "meeko": "0.8.0",
+  "rdkit": "2026.03.1",
+  "openbabel": "Open Babel 3.2.1 -- Aug 19 2026 -- 17:02:44",
+  "seed": 42,
+  "exhaustiveness": 16,
+  "cpu": 4,
+  "box_center": [
+    -10.729,
+    12.418,
+    68.816
+  ],
+  "box_size": [
+    30.0,
+    30.0,
+    30.0
+  ],
+  "box_rule": "Cubic edge is the smallest even angstrom length that is at least 22 and at least twice the sum of 4 A padding and the maximum absolute coordinate deviation of the 49 crystallographic heavy atoms from their centroid. The centre written to the config is that centroid rounded to 3 decimals.",
+  "his41_ca": [
+    -13.82,
+    21.037,
+    73.265
+  ],
+  "distance_center_to_his41_ca_A": 10.18,
+  "cys145_sg": [
+    -14.043,
+    17.445,
+    66.228
+  ],
+  "distance_center_to_cys145_sg_A": 6.554,
+  "pdb_sha256": "385497151c2c093d764ffbc694589c2c1db35be638e49d715d4d8af38903966e",
+  "receptor_pdbqt": "structures/receptor/6LU7_receptor.pdbqt",
+  "ligands": [
+    {
+      "ligand_name": "Quercetin",
+      "pubchem_cid": "5280343",
+      "source": "pubchem-3d",
+      "sdf_sha256": "34cfb91bd32f57d4b14fdb0b6d034bcddb5fb7bf0dda9572aa79892aae316b30",
+      "formula": "C15H10O7",
+      "formal_charge": 0,
+      "heavy_atoms": 22
+    },
+    {
+      "ligand_name": "Curcumin",
+      "pubchem_cid": "969516",
+      "source": "pubchem-3d",
+      "sdf_sha256": "1274454643e627fa17edf2ec24524fb6ee572b84f9ebfd151128396a2f34fba2",
+      "formula": "C21H20O6",
+      "formal_charge": 0,
+      "heavy_atoms": 27
+    },
+    {
+      "ligand_name": "Kaempferol",
+      "pubchem_cid": "5280863",
+      "source": "pubchem-3d",
+      "sdf_sha256": "2337fc5d98e10ac0657ec1b34faacde40ab0db8d1368f8084c5c45f7006caf92",
+      "formula": "C15H10O6",
+      "formal_charge": 0,
+      "heavy_atoms": 21
+    },
+    {
+      "ligand_name": "Andrographolide",
+      "pubchem_cid": "5318517",
+      "source": "pubchem-3d",
+      "sdf_sha256": "637c281c10436f0fdb362fffed2f4dd0f8ec9ced979a7a600919897cb37902c4",
+      "formula": "C20H30O5",
+      "formal_charge": 0,
+      "heavy_atoms": 25
+    },
+    {
+      "ligand_name": "Berberine",
+      "pubchem_cid": "2353",
+      "source": "pubchem-3d",
+      "sdf_sha256": "bacbdb3256f1c5742703d5106b2430657e1fec37fb073b2cfaf62b1ddc1d31e3",
+      "formula": "C20H18NO4+",
+      "formal_charge": 1,
+      "heavy_atoms": 25
+    }
+  ],
+  "redocking_rmsd_symmetry_A": 7.266,
+  "scores": [
+    {
+      "ligand_name": "Kaempferol",
+      "vina_score_kcal_mol": -7.745
+    },
+    {
+      "ligand_name": "Berberine",
+      "vina_score_kcal_mol": -7.679
+    },
+    {
+      "ligand_name": "Quercetin",
+      "vina_score_kcal_mol": -7.518
+    },
+    {
+      "ligand_name": "Curcumin",
+      "vina_score_kcal_mol": -6.91
+    },
+    {
+      "ligand_name": "Andrographolide",
+      "vina_score_kcal_mol": -6.883
+    }
+  ]
+}

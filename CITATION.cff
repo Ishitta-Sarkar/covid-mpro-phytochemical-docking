@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+title: "Phytochemical docking against SARS-CoV-2 main protease (PDB 6LU7)"
+message: "If you use this workflow, please cite it."
+type: software
+authors:
+  - family-names: Sarkar
+    given-names: Ishitta
+    orcid: "https://orcid.org/0009-0008-1028-6010"
+repository-code: "https://github.com/Ishitta-Sarkar/covid-mpro-phytochemical-docking"
+license: MIT
+version: 1.0.0
+date-released: 2026-11-24
+keywords:
+  - autodock-vina
+  - bioinformatics
+  - biotechnology
+  - computational-biology
+  - covid19
+  - drug-discovery
+  - molecular-docking
+  - phytochemicals
+  - python
+  - sars-cov-2
+  - structural-biology
+  - virtual-screening
+  - pymol
+  - protein-ligand-interaction
+  - natural-products
+  - cheminformatics
+  - in-silico
