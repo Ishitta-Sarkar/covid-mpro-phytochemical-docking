@@ -12,7 +12,11 @@ import matplotlib.pyplot as plt
 from mpro_docking.analysis import SCORE_COLUMN, DockingAnalysis
 
 
-def plot_vina_scores(results_csv: Path, figure_path: Path) -> None:
+def plot_vina_scores(
+    results_csv: Path,
+    figure_path: Path,
+    title: str = "SARS-CoV-2 Mpro (PDB 6LU7)",
+) -> None:
     ranked = sorted(
         DockingAnalysis(results_csv, results_csv).results,
         key=lambda row: (float(row[SCORE_COLUMN]), row["ligand_name"]),
@@ -26,7 +30,7 @@ def plot_vina_scores(results_csv: Path, figure_path: Path) -> None:
     ax.barh(positions, scores, color="#0072B2", height=0.62)
     ax.set_yticks(positions, names)
     ax.set_xlabel("Vina score (kcal/mol)")
-    ax.set_title("SARS-CoV-2 Mpro (PDB 6LU7)")
+    ax.set_title(title)
     ax.axvline(0.0, color="#222222", linewidth=0.6)
     span = max(abs(score) for score in scores)
     ax.set_xlim(-span - 1.8, 0.4)

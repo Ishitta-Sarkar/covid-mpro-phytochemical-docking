@@ -23,7 +23,15 @@ The crystal N3 PDBQT is scored with `--score_only`, then docked. Each phytochemi
 
 ## RMSD
 
-`src/mpro_docking/rmsd.py` computes the heavy-atom RMSD in the shared frame. It does not rotate or translate one pose onto the other. Symmetry-corrected RMSD is the minimum over graph automorphisms; direct RMSD keeps the atom order. For N3 the published values are 7.266 Å (symmetry-corrected) and 7.295 Å (direct). The crystal pose scores −3.470 kcal/mol and the top search pose scores −8.520 kcal/mol. PJE C20 moves from 1.793 Å to 5.121 Å from Cys145 SG. This is a failed 2 Å redock, for a covalent complex evaluated with a non-covalent scoring function.
+`src/mpro_docking/rmsd.py` computes the heavy-atom RMSD in the shared frame. It does not rotate or translate one pose onto the other. Symmetry-corrected RMSD is the minimum over graph automorphisms; direct RMSD keeps the atom order. The pose-reproduction cutoff used in this repository is 2 Å.
+
+**PDB 6W63 / X77 (the control).** Non-covalent: no LINK record, closest crystal contact 2.796 Å. Box from the same rule: 22 Å cube centred at (−20.096, 18.844, −27.394). Symmetry-corrected RMSD 0.915 Å, direct RMSD 1.168 Å. Both meet 2 Å. Crystal pose score −8.076 kcal/mol; top search pose −8.507 kcal/mol.
+
+**PDB 6LU7 / N3 (negative control).** Covalent complex. Symmetry-corrected RMSD 7.266 Å, direct RMSD 7.295 Å. The crystal pose scores −3.470 kcal/mol and the top search pose scores −8.520 kcal/mol. PJE C20 moves from 1.793 Å to 5.121 Å from Cys145 SG. Standard Vina has no term for that bond, so this failure is expected and is not used as evidence about the phytochemical poses.
+
+## Two screening tables
+
+The five PubChem ligands are docked into both receptors with seed 42 and exhaustiveness 16. `data/docking_results_6w63.csv` is the screen on the receptor whose co-crystal pose was recovered. `data/docking_results.csv` is the screen on 6LU7. The rank order is not the same. Neither table is a binding affinity.
 
 ## Interactions
 

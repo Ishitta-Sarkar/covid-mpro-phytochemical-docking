@@ -1,6 +1,6 @@
 rank,ligand_name,vina_score_kcal_mol,note
-1,Kaempferol,-7.745,Ranked by Vina score in this run. Not a measured affinity.
-2,Berberine,-7.679,Ranked by Vina score in this run. Not a measured affinity.
-3,Quercetin,-7.518,Ranked by Vina score in this run. Not a measured affinity.
-4,Curcumin,-6.910,Ranked by Vina score in this run. Not a measured affinity.
-5,Andrographolide,-6.883,Ranked by Vina score in this run. Not a measured affinity.
+1,Kaempferol,-7.745,"PDB 6LU7, a covalent complex. Ranked by Vina score. Not a measured affinity. Pose recovery was tested on PDB 6W63."
+2,Berberine,-7.679,"PDB 6LU7, a covalent complex. Ranked by Vina score. Not a measured affinity. Pose recovery was tested on PDB 6W63."
+3,Quercetin,-7.518,"PDB 6LU7, a covalent complex. Ranked by Vina score. Not a measured affinity. Pose recovery was tested on PDB 6W63."
+4,Curcumin,-6.910,"PDB 6LU7, a covalent complex. Ranked by Vina score. Not a measured affinity. Pose recovery was tested on PDB 6W63."
+5,Andrographolide,-6.883,"PDB 6LU7, a covalent complex. Ranked by Vina score. Not a measured affinity. Pose recovery was tested on PDB 6W63."

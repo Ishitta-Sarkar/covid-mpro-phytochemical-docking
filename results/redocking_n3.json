@@ -22,5 +22,6 @@
   "docked_c20_sg_distance_A": 5.121,
   "docked_min_heavy_distance_A": 2.945,
   "formula": "C35H48N6O8",
-  "protein_atoms_chain_A": 2367
+  "protein_atoms_chain_A": 2367,
+  "role": "covalent_complex_negative_control"
 }

@@ -2,10 +2,16 @@ import itertools
 from collections import Counter
 from pathlib import Path
 
+import pytest
 from rdkit import Chem
 
-from mpro_docking.chemistry import assemble_crystal_ligand, parse_ccd_bonds, residue_atom_key
-from mpro_docking.geometry import distance
+from mpro_docking.chemistry import (
+    assemble_component_ligand,
+    assemble_crystal_ligand,
+    parse_ccd_bonds,
+    residue_atom_key,
+)
+from mpro_docking.geometry import cubic_search_box, distance
 from mpro_docking.pdbio import parse_pdb
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -118,3 +124,28 @@ def test_assembled_ligand_matches_crystal_heavy_atoms():
         if pair in bonded and dist > 1.70:
             raise AssertionError(f"bonded pair is too long: {keys[i]} {keys[j]} {dist:.3f}")
     assert close_missing == []
+
+
+def test_x77_is_a_complete_noncovalent_ligand():
+    fixture = ROOT / "tests" / "fixtures" / "6w63_x77.pdb"
+    mol = assemble_component_ligand(fixture, CCD / "X77.cif", "X77", "A", 401, "X77", relax_h=False)
+    heavy = [atom for atom in mol.GetAtoms() if atom.GetAtomicNum() > 1]
+    assert len(heavy) == 34
+    assert Chem.GetFormalCharge(mol) == 0
+    assert not any(atom.GetNumRadicalElectrons() for atom in mol.GetAtoms())
+    pdb_atoms, _links = parse_pdb(fixture)
+    conf = mol.GetConformer()
+    by_key = {}
+    for atom in heavy:
+        pos = conf.GetAtomPosition(atom.GetIdx())
+        by_key[residue_atom_key(atom)] = (pos.x, pos.y, pos.z)
+    for atom in pdb_atoms:
+        assert distance(by_key[atom.key], atom.xyz) < 1e-4
+    center, size = cubic_search_box([atom.xyz for atom in pdb_atoms])
+    assert size == (22.0, 22.0, 22.0)
+    assert center == (-20.096, 18.844, -27.394)
+
+
+def test_covalent_link_is_rejected_for_the_noncovalent_builder():
+    with pytest.raises(ValueError, match="covalent"):
+        assemble_component_ligand(FIXTURE, CCD / "PJE.cif", "PJE", "C", 5, "PJE")

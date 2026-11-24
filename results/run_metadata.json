@@ -84,6 +84,45 @@
     }
   ],
   "redocking_rmsd_symmetry_A": 7.266,
+  "redocking_role": "covalent_complex_negative_control",
+  "noncovalent_control": {
+    "pdb_id": "6W63",
+    "ligand": "X77",
+    "heavy_atom_rmsd_symmetry_A": 0.915,
+    "meets_2A_criterion": true,
+    "box_center": [
+      -20.096,
+      18.844,
+      -27.394
+    ],
+    "box_size": [
+      22.0,
+      22.0,
+      22.0
+    ],
+    "scores": [
+      {
+        "ligand_name": "Quercetin",
+        "vina_score_kcal_mol": -7.64
+      },
+      {
+        "ligand_name": "Berberine",
+        "vina_score_kcal_mol": -7.602
+      },
+      {
+        "ligand_name": "Curcumin",
+        "vina_score_kcal_mol": -7.342
+      },
+      {
+        "ligand_name": "Andrographolide",
+        "vina_score_kcal_mol": -7.184
+      },
+      {
+        "ligand_name": "Kaempferol",
+        "vina_score_kcal_mol": -7.037
+      }
+    ]
+  },
   "scores": [
     {
       "ligand_name": "Kaempferol",

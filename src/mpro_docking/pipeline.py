@@ -16,11 +16,20 @@ from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors
 
 from mpro_docking import __version__
-from mpro_docking.chemistry import assemble_crystal_ligand, residue_atom_key
+from mpro_docking.chemistry import (
+    assemble_component_ligand,
+    assemble_crystal_ligand,
+    residue_atom_key,
+)
 from mpro_docking.constants import (
     CPU,
     EXHAUSTIVENESS,
+    NONCOVALENT_LIGAND_CHAIN,
+    NONCOVALENT_LIGAND_RESNAME,
+    NONCOVALENT_LIGAND_RESSEQ,
+    NONCOVALENT_PDB_ID,
     PDB_ID,
+    POSE_RMSD_CUTOFF_A,
     RECEPTOR_CHAIN,
     SEED,
 )
@@ -313,7 +322,10 @@ def run(refresh: bool = False) -> dict:
                     "rank": row["rank"],
                     "ligand_name": row["ligand_name"],
                     "vina_score_kcal_mol": row["vina_score_kcal_mol"],
-                    "note": "Ranked by Vina score in this run. Not a measured affinity.",
+                    "note": (
+                        "PDB 6LU7, a covalent complex. Ranked by Vina score. "
+                        "Not a measured affinity. Pose recovery was tested on PDB 6W63."
+                    ),
                 }
             )
 
@@ -352,6 +364,7 @@ def run(refresh: bool = False) -> dict:
         ),
         "formula": rdMolDescriptors.CalcMolFormula(Chem.RemoveHs(crystal)),
         "protein_atoms_chain_A": n_protein,
+        "role": "covalent_complex_negative_control",
     }
     redock_path = result_dir / "redocking_n3.json"
     redock_path.write_text(json.dumps(redock, indent=2) + "\n", encoding="utf-8")
@@ -363,7 +376,9 @@ def run(refresh: bool = False) -> dict:
     write_hydrogen_bonds(all_hbonds, result_dir / "hydrogen_bonds.csv")
     write_contacts(all_contacts, result_dir / "residue_contacts.csv")
     figure = result_dir / "vina_scores.png"
-    plot_vina_scores(results_csv, figure)
+    plot_vina_scores(results_csv, figure, title="SARS-CoV-2 Mpro (PDB 6LU7)")
+
+    noncovalent = _run_noncovalent_control(root, ligand_rows, refresh=refresh)
 
     metadata = {
         "software_version": __version__,
@@ -394,6 +409,20 @@ def run(refresh: bool = False) -> dict:
         "receptor_pdbqt": _relative(receptor_pdbqt, root),
         "ligands": provenance,
         "redocking_rmsd_symmetry_A": redock["heavy_atom_rmsd_symmetry_A"],
+        "redocking_role": "covalent_complex_negative_control",
+        "noncovalent_control": {
+            "pdb_id": noncovalent["pdb_id"],
+            "ligand": noncovalent["ligand"],
+            "heavy_atom_rmsd_symmetry_A": noncovalent["heavy_atom_rmsd_symmetry_A"],
+            "meets_2A_criterion": noncovalent["meets_2A_criterion"],
+            "box_center": [
+                noncovalent["center_x"],
+                noncovalent["center_y"],
+                noncovalent["center_z"],
+            ],
+            "box_size": [noncovalent["size_x"], noncovalent["size_y"], noncovalent["size_z"]],
+            "scores": noncovalent["scores"],
+        },
         "scores": [
             {
                 "ligand_name": row["ligand_name"],
@@ -408,7 +437,286 @@ def run(refresh: bool = False) -> dict:
     _write_pymol(root)
     LOGGER.info("Wrote %s", _relative(results_csv, root))
     LOGGER.info("Wrote %s", _relative(figure, root))
-    return {"redocking": redock, "results": result_rows, "metadata": metadata}
+    return {
+        "redocking": redock,
+        "noncovalent": noncovalent,
+        "results": result_rows,
+        "metadata": metadata,
+    }
+
+
+def _crystal_min_distance(pdb_path: Path, resname: str, chain: str, resseq: int) -> float:
+    atoms, _links = parse_pdb(pdb_path)
+    ligand = [
+        atom
+        for atom in atoms
+        if atom.resname == resname
+        and atom.chain == chain
+        and atom.resseq == resseq
+        and atom.element != "H"
+    ]
+    protein = [atom for atom in atoms if atom.record == "ATOM" and atom.element != "H"]
+    return min(distance(left.xyz, right.xyz) for left in ligand for right in protein)
+
+
+def _write_score_table(rows: list[dict[str, str]], path: Path) -> list[dict[str, str]]:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ordered = sorted(
+        rows, key=lambda item: (float(item["vina_score_kcal_mol"]), item["ligand_name"])
+    )
+    for rank, row in enumerate(ordered, start=1):
+        row["rank"] = str(rank)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=RESULT_FIELDS)
+        writer.writeheader()
+        writer.writerows(ordered)
+    return ordered
+
+
+def _run_noncovalent_control(root: Path, ligand_rows: list[dict[str, str]], refresh: bool) -> dict:
+    """Redock X77 in PDB 6W63 and dock the same five phytochemicals there.
+
+    6W63 is the pose-reproduction control. 6LU7 remains the covalent-complex
+    negative control and is not used to decide whether the protocol recovers
+    a non-covalent crystal pose.
+    """
+
+    raw = root / "structures" / "raw"
+    receptor_dir = root / "structures" / "receptor"
+    ligand_dir = root / "structures" / "ligands"
+    pose_dir = root / "structures" / "poses"
+    log_dir = root / "docking" / "logs"
+    result_dir = root / "results"
+    pdb_id = NONCOVALENT_PDB_ID
+
+    LOGGER.info("Fetching non-covalent control PDB %s", pdb_id)
+    try:
+        pdb_path = fetch_pdb(pdb_id, raw / f"{pdb_id}.pdb", refresh=refresh)
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"could not download PDB {pdb_id}: {exc}") from exc
+
+    clean_pdb = receptor_dir / f"{pdb_id}_chainA.pdb"
+    n_protein = write_receptor_pdb(pdb_path, clean_pdb)
+    receptor_pdbqt = receptor_dir / f"{pdb_id}_receptor.pdbqt"
+    prepare_receptor_pdbqt(clean_pdb, receptor_pdbqt)
+
+    ccd_path = root / "data" / "ccd" / f"{NONCOVALENT_LIGAND_RESNAME}.cif"
+    crystal = assemble_component_ligand(
+        pdb_path,
+        ccd_path,
+        NONCOVALENT_LIGAND_RESNAME,
+        NONCOVALENT_LIGAND_CHAIN,
+        NONCOVALENT_LIGAND_RESSEQ,
+        NONCOVALENT_LIGAND_RESNAME,
+    )
+    crystal_min = _crystal_min_distance(
+        pdb_path,
+        NONCOVALENT_LIGAND_RESNAME,
+        NONCOVALENT_LIGAND_CHAIN,
+        NONCOVALENT_LIGAND_RESSEQ,
+    )
+    if crystal_min < 2.0:
+        raise RuntimeError(
+            f"{pdb_id} {NONCOVALENT_LIGAND_RESNAME} comes within {crystal_min:.3f} A of the "
+            "protein. That is not a non-covalent complex for this protocol."
+        )
+
+    crystal_sdf = ligand_dir / "x77_crystal.sdf"
+    write_sdf(crystal, crystal_sdf)
+    obabel_pdb(crystal_sdf, ligand_dir / "x77_crystal.pdb")
+    ligand_pdbqt = ligand_dir / "x77.pdbqt"
+    prepare_ligand_pdbqt(crystal, ligand_pdbqt, NONCOVALENT_LIGAND_RESNAME)
+    roundtrip = _roundtrip_rmsd(crystal, ligand_pdbqt)
+    if roundtrip > 0.01:
+        raise RuntimeError(
+            f"X77 PDBQT does not preserve crystal heavy atoms (RMSD {roundtrip:.4f} A)"
+        )
+
+    heavy_xyz = [
+        (
+            crystal.GetConformer().GetAtomPosition(atom.GetIdx()).x,
+            crystal.GetConformer().GetAtomPosition(atom.GetIdx()).y,
+            crystal.GetConformer().GetAtomPosition(atom.GetIdx()).z,
+        )
+        for atom in crystal.GetAtoms()
+        if atom.GetAtomicNum() != 1
+    ]
+    center, size = cubic_search_box(heavy_xyz)
+    config_path = root / "docking" / "vina_config_6w63.txt"
+    config_path.write_text(
+        format_vina_config(_relative(receptor_pdbqt, root), center, size),
+        encoding="utf-8",
+    )
+    LOGGER.info(
+        "6W63 search box centre (%.3f, %.3f, %.3f), size %.0f A",
+        center[0],
+        center[1],
+        center[2],
+        size[0],
+    )
+
+    score_text = run_vina(
+        config_path,
+        ligand_pdbqt,
+        None,
+        log_dir / "x77_score_only.log",
+        extra_args=["--score_only"],
+        cwd=root,
+    )
+    crystal_score = parse_score_only(score_text)
+    pose = pose_dir / "x77_out.pdbqt"
+    score, n_tors = _dock_one(root, config_path, ligand_pdbqt, pose, log_dir / "x77.log")
+    docked = _pose_mol(crystal, ligand_pdbqt, pose)
+    rmsd = heavy_atom_rmsd(docked, crystal)
+    write_sdf(docked, pose_dir / "x77_top.sdf")
+    obabel_pdb(pose_dir / "x77_top.sdf", pose_dir / "x77_top.pdb")
+    meets = rmsd.symmetry <= POSE_RMSD_CUTOFF_A
+    LOGGER.info(
+        "X77 heavy-atom RMSD (symmetry-corrected, no superposition): %.3f A; 2 A criterion: %s",
+        rmsd.symmetry,
+        "met" if meets else "not met",
+    )
+
+    receptor_atoms = parse_pdbqt_atoms(receptor_pdbqt)
+    rows = []
+    hbonds = []
+    contacts = []
+    for row in ligand_rows:
+        name = row["ligand_name"]
+        slug = name.lower()
+        pdbqt = ligand_dir / f"{slug}.pdbqt"
+        out = pose_dir / f"6w63_{slug}_out.pdbqt"
+        lig_score, lig_tors = _dock_one(root, config_path, pdbqt, out, log_dir / f"6w63_{slug}.log")
+        ligand_atoms = parse_pdbqt_atoms(out)
+        hbonds.extend(hydrogen_bonds(name, receptor_atoms, ligand_atoms))
+        contacts.extend(contact_residues(name, receptor_atoms, ligand_atoms))
+        rows.append(
+            {
+                "ligand_name": name,
+                "pubchem_cid": row["pubchem_cid"],
+                "compound_class": row["compound_class"],
+                "pdb_id": pdb_id,
+                "vina_score_kcal_mol": f"{lig_score:.3f}",
+                "torsdof": str(lig_tors),
+                "seed": str(SEED),
+                "exhaustiveness": str(EXHAUSTIVENESS),
+                "cpu": str(CPU),
+                "log_file": _relative(log_dir / f"6w63_{slug}.log", root),
+                "pose_file": _relative(out, root),
+            }
+        )
+        LOGGER.info("6W63 %s Vina score %.3f kcal/mol", name, lig_score)
+
+    table = root / "data" / "docking_results_6w63.csv"
+    rows = _write_score_table(rows, table)
+    with (result_dir / "top_candidates_6w63.csv").open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle, fieldnames=["rank", "ligand_name", "vina_score_kcal_mol", "note"]
+        )
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(
+                {
+                    "rank": row["rank"],
+                    "ligand_name": row["ligand_name"],
+                    "vina_score_kcal_mol": row["vina_score_kcal_mol"],
+                    "note": (
+                        "Ranked by Vina score against non-covalent PDB 6W63. "
+                        "Not a measured affinity."
+                    ),
+                }
+            )
+    write_hydrogen_bonds(hbonds, result_dir / "hydrogen_bonds_6w63.csv")
+    write_contacts(contacts, result_dir / "residue_contacts_6w63.csv")
+    plot_vina_scores(
+        table,
+        result_dir / "vina_scores_6w63.png",
+        title="SARS-CoV-2 Mpro (PDB 6W63)",
+    )
+    _write_x77_pymol(root)
+
+    record = {
+        "ligand": NONCOVALENT_LIGAND_RESNAME,
+        "role": "noncovalent_pose_reproduction",
+        "description": (
+            "PDB 6W63 chain A with non-covalent inhibitor X77 (residue A 401). "
+            "No LINK record joins X77 to the protein. Gln306 is absent from the "
+            "deposited coordinates; the receptor is residues 1-305."
+        ),
+        "pdb_id": pdb_id,
+        "heavy_atom_rmsd_symmetry_A": round(rmsd.symmetry, 3),
+        "heavy_atom_rmsd_direct_A": round(rmsd.direct, 3),
+        "n_heavy_atoms": rmsd.n_heavy,
+        "n_automorphisms": rmsd.n_automorphisms,
+        "pose_rmsd_cutoff_A": POSE_RMSD_CUTOFF_A,
+        "meets_2A_criterion": meets,
+        "vina_score_kcal_mol": round(score, 3),
+        "crystal_pose_score_kcal_mol": None if crystal_score is None else round(crystal_score, 3),
+        "torsdof": n_tors,
+        "seed": SEED,
+        "exhaustiveness": EXHAUSTIVENESS,
+        "cpu": CPU,
+        "center_x": center[0],
+        "center_y": center[1],
+        "center_z": center[2],
+        "size_x": size[0],
+        "size_y": size[1],
+        "size_z": size[2],
+        "crystal_min_heavy_distance_A": round(crystal_min, 3),
+        "docked_min_heavy_distance_A": round(
+            min_intermolecular_distance(receptor_atoms, parse_pdbqt_atoms(pose)), 3
+        ),
+        "formula": rdMolDescriptors.CalcMolFormula(Chem.RemoveHs(crystal)),
+        "protein_atoms_chain_A": n_protein,
+        "pdb_sha256": sha256_file(pdb_path),
+        "scores": [
+            {
+                "ligand_name": row["ligand_name"],
+                "vina_score_kcal_mol": float(row["vina_score_kcal_mol"]),
+            }
+            for row in rows
+        ],
+    }
+    (result_dir / "redocking_x77.json").write_text(
+        json.dumps(record, indent=2) + "\n", encoding="utf-8"
+    )
+    with (result_dir / "redocking_x77.csv").open("w", encoding="utf-8", newline="") as handle:
+        public = {key: value for key, value in record.items() if key != "scores"}
+        writer = csv.DictWriter(handle, fieldnames=list(public.keys()))
+        writer.writeheader()
+        writer.writerow(public)
+    return record
+
+
+def _write_x77_pymol(root: Path) -> None:
+    script = root / "docking" / "overlay_x77.pml"
+    script.write_text(
+        "\n".join(
+            [
+                "reinitialize",
+                "bg_color white",
+                "set ray_opaque_background, 1",
+                "load structures/receptor/6W63_chainA.pdb, receptor",
+                "load structures/ligands/x77_crystal.pdb, crystal",
+                "load structures/poses/x77_top.pdb, redocked",
+                "hide everything",
+                "hide (elem H)",
+                "show cartoon, receptor",
+                "show sticks, crystal or redocked",
+                "set stick_radius, 0.18",
+                "color grey70, receptor",
+                "color cyan, crystal",
+                "color salmon, redocked",
+                "select site, chain A and (resi 41 or resi 145)",
+                "show sticks, site",
+                "color yellow, site",
+                "orient crystal",
+                "zoom crystal, 8",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
 
 def _vina_version() -> str:
