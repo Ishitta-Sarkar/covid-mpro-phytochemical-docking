@@ -1,0 +1,12 @@
+receptor = structures/receptor/6W63_receptor.pdbqt
+center_x = -20.096
+center_y = 18.844
+center_z = -27.394
+size_x = 22
+size_y = 22
+size_z = 22
+exhaustiveness = 16
+num_modes = 9
+energy_range = 3
+min_rmsd = 1
+seed = 42

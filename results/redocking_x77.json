@@ -1,0 +1,51 @@
+{
+  "ligand": "X77",
+  "role": "noncovalent_pose_reproduction",
+  "description": "PDB 6W63 chain A with non-covalent inhibitor X77 (residue A 401). No LINK record joins X77 to the protein. Gln306 is absent from the deposited coordinates; the receptor is residues 1-305.",
+  "pdb_id": "6W63",
+  "heavy_atom_rmsd_symmetry_A": 0.915,
+  "heavy_atom_rmsd_direct_A": 1.168,
+  "n_heavy_atoms": 34,
+  "n_automorphisms": 24,
+  "pose_rmsd_cutoff_A": 2.0,
+  "meets_2A_criterion": true,
+  "vina_score_kcal_mol": -8.507,
+  "crystal_pose_score_kcal_mol": -8.076,
+  "torsdof": 8,
+  "seed": 42,
+  "exhaustiveness": 16,
+  "cpu": 4,
+  "center_x": -20.096,
+  "center_y": 18.844,
+  "center_z": -27.394,
+  "size_x": 22.0,
+  "size_y": 22.0,
+  "size_z": 22.0,
+  "crystal_min_heavy_distance_A": 2.796,
+  "docked_min_heavy_distance_A": 2.843,
+  "formula": "C27H33N5O2",
+  "protein_atoms_chain_A": 2358,
+  "pdb_sha256": "aef661942aa9afaaf0fb8b69cea88bfea39ee88286f58bd230938eeb1e065eae",
+  "scores": [
+    {
+      "ligand_name": "Quercetin",
+      "vina_score_kcal_mol": -7.64
+    },
+    {
+      "ligand_name": "Berberine",
+      "vina_score_kcal_mol": -7.602
+    },
+    {
+      "ligand_name": "Curcumin",
+      "vina_score_kcal_mol": -7.342
+    },
+    {
+      "ligand_name": "Andrographolide",
+      "vina_score_kcal_mol": -7.184
+    },
+    {
+      "ligand_name": "Kaempferol",
+      "vina_score_kcal_mol": -7.037
+    }
+  ]
+}

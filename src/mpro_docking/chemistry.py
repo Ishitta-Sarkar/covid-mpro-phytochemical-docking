@@ -102,6 +102,71 @@ def _load_ccd_dir(ccd_dir: Path) -> dict[str, list[tuple[str, str, str]]]:
     return tables
 
 
+def covalent_links_to_residue(
+    links: list[LinkRecord], resname: str, chain: str, resseq: int
+) -> list[LinkRecord]:
+    """LINK records that join this residue to a different residue."""
+
+    found = []
+    for link in links:
+        left = (link.resname1, link.chain1, link.resseq1)
+        right = (link.resname2, link.chain2, link.resseq2)
+        this = (resname, chain, resseq)
+        if this in (left, right) and left != right:
+            found.append(link)
+    return found
+
+
+def assemble_component_ligand(
+    pdb_path: Path,
+    ccd_path: Path,
+    resname: str,
+    chain: str,
+    resseq: int,
+    name: str,
+    relax_h: bool = True,
+) -> Chem.Mol:
+    """Build one HET residue from its chemical-component bonds and crystal coordinates.
+
+    Raises if a LINK record joins the residue to another residue. That is the
+    covalent case (N3 in 6LU7) and is not a non-covalent redocking ligand.
+    """
+
+    atoms, links = parse_pdb(pdb_path)
+    if covalent_links_to_residue(links, resname, chain, resseq):
+        raise ValueError(
+            f"{resname} {chain}{resseq} has a covalent LINK to another residue "
+            "and is not used as a non-covalent redocking ligand"
+        )
+    ligand_atoms = [
+        atom
+        for atom in atoms
+        if atom.resname == resname
+        and atom.chain == chain
+        and atom.resseq == resseq
+        and atom.element != "H"
+    ]
+    if not ligand_atoms:
+        raise ValueError(f"no heavy atoms for {resname} {chain}{resseq} in {pdb_path}")
+    ccd_bonds = parse_ccd_bonds(ccd_path)
+    known = {name for bond in ccd_bonds for name in bond[:2]}
+    missing = sorted({atom.name for atom in ligand_atoms} - known)
+    if missing:
+        raise ValueError(f"{resname} atoms are not in {ccd_path.name}: {missing}")
+    mol = _build_mol(ligand_atoms, [], {resname: ccd_bonds}, chain)
+    Chem.SanitizeMol(mol)
+    radicals = [atom.GetSymbol() for atom in mol.GetAtoms() if atom.GetNumRadicalElectrons()]
+    if radicals:
+        raise ValueError(f"{name} has radical atoms after sanitisation: {radicals}")
+    Chem.AssignStereochemistryFrom3D(mol, replaceExistingTags=True)
+    heavy_xyz = [mol.GetConformer().GetAtomPosition(i) for i in range(mol.GetNumAtoms())]
+    mol = Chem.AddHs(mol, addCoords=True)
+    if relax_h:
+        _relax_hydrogens(mol, heavy_xyz)
+    mol.SetProp("_Name", name)
+    return mol
+
+
 def assemble_crystal_ligand(
     pdb_path: Path,
     ccd_dir: Path,

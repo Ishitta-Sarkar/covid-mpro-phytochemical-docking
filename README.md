@@ -5,13 +5,13 @@
 ![PDB 6LU7](https://img.shields.io/badge/PDB-6LU7-1565C0)
 [![CI](https://github.com/Ishitta-Sarkar/covid-mpro-phytochemical-docking/actions/workflows/ci.yml/badge.svg)](https://github.com/Ishitta-Sarkar/covid-mpro-phytochemical-docking/actions)
 
-Structure-based docking of five plant-derived compounds against the **SARS-CoV-2 main protease (Mpro, 3CLpro)**, the enzyme that cuts the viral polyproteins. The receptor is the 2.16 Å crystal structure [PDB 6LU7](https://www.rcsb.org/structure/6LU7) (Jin et al., Nature, 2020). This repository is the computational part of my B.Tech final-year project.
+Structure-based docking of five plant-derived compounds against the **SARS-CoV-2 main protease (Mpro, 3CLpro)**, the enzyme that cuts the viral polyproteins. This repository is the computational part of my B.Tech final-year project.
 
-Every score below comes from one scripted AutoDock Vina 1.2.7 run (exhaustiveness 16, seed 42, 4 CPU threads). The raw logs are in `docking/logs/`.
+The pose protocol is checked on [PDB 6W63](https://www.rcsb.org/structure/6W63), a 2.10 Å complex with the non-covalent inhibitor X77. [PDB 6LU7](https://www.rcsb.org/structure/6LU7) (Jin et al., Nature, 2020) is kept as a covalent-complex negative control: standard Vina cannot represent the Cys145–inhibitor bond, so that redock is not used to claim the protocol recovers crystal poses. The five phytochemicals were docked into both receptors. Every score below is from those scripted AutoDock Vina 1.2.7 runs (exhaustiveness 16, seed 42, 4 CPU threads). The raw logs are in `docking/logs/`.
 
 ## Question
 
-For this fixed protocol, how do five phytochemicals rank against Mpro, and can the same protocol reproduce the co-crystallised inhibitor pose?
+For this fixed protocol, does redocking recover a non-covalent crystal pose, and how do five phytochemicals rank on that receptor and on the covalent 6LU7 complex?
 
 ## Target and ligands
 
@@ -70,25 +70,62 @@ Hydrogen bonds use the hydrogens already present in the Meeko PDBQT files. A bon
 
 ## Results
 
-### Redocking of the co-crystallised inhibitor
+### Non-covalent redocking control (PDB 6W63, ligand X77)
+
+X77 is residue A 401. The file has no `LINK` record to the protein. The closest crystal heavy-atom contact is 2.796 Å (a normal intermolecular distance, not a bond). The same box rule, centred on the 34 crystal heavy atoms, gives a **22 Å cube** at (−20.096, 18.844, −27.394). Gln306 is missing from the deposit, so the receptor is residues 1–305. X77 has 8 active torsions. The usual criterion used here is a symmetry-corrected heavy-atom RMSD of at most **2 Å**.
+
+| Quantity | Value |
+|---|---|
+| Heavy-atom RMSD, symmetry-corrected | **0.915 Å** |
+| Heavy-atom RMSD, atom order preserved | 1.168 Å |
+| Meets the 2 Å criterion | yes (both values) |
+| Vina score of the docked pose | −8.507 kcal/mol |
+| Vina score of the crystallographic coordinates (`--score_only`) | −8.076 kcal/mol |
+| Closest heavy-atom contact, crystal | 2.796 Å |
+| Closest heavy-atom contact, top docked pose | 2.843 Å |
+
+The symmetry correction (24 automorphisms, including the tert-butyl group) changes the RMSD from 1.168 Å to 0.915 Å. The search pose and the crystal pose also score within 0.5 kcal/mol of each other. Cyan is the crystal ligand; salmon is the top Vina pose; yellow is His41 and Cys145.
+
+![Crystal and redocked X77](results/x77_redock_overlay.png)
+
+### Covalent-complex negative control (PDB 6LU7, inhibitor N3)
+
+This is not a valid non-covalent docking test. It is reported so the failure mode is explicit.
 
 | Quantity | Value |
 |---|---|
 | Heavy-atom RMSD, symmetry-corrected | **7.266 Å** |
 | Heavy-atom RMSD, atom order preserved | 7.295 Å |
+| Meets the 2 Å criterion | no |
 | Vina score of the docked pose | −8.520 kcal/mol |
 | Vina score of the crystallographic coordinates (`--score_only`) | −3.470 kcal/mol |
 | PJE C20–Cys145 SG distance, crystal | 1.793 Å |
 | PJE C20–Cys145 SG distance, top docked pose | 5.121 Å |
 | Closest heavy-atom contact, top docked pose | 2.945 Å |
 
-**7.266 Å does not meet the usual 2 Å pose-reproduction criterion.** The deposited coordinates include a covalent C–S contact. Vina treats that contact as a clash, scores the crystal pose at only −3.470 kcal/mol, and the search moves the warhead carbon 5.121 Å away from the sulfur to a pose it scores at −8.520 kcal/mol. The two heavy-atom RMSDs differ by 0.029 Å, so the failure is not an atom-matching artefact. Cyan in the figure is the crystal inhibitor; salmon is the top Vina pose; yellow is His41 and Cys145.
+**7.266 Å does not meet the 2 Å criterion, and it should not.** The deposited coordinates include a covalent C–S contact. Vina has no covalent term, treats that contact as a clash, scores the crystal pose at only −3.470 kcal/mol, and the search moves the warhead carbon 5.121 Å away from the sulfur to a pose it scores at −8.520 kcal/mol. The two RMSDs differ by 0.029 Å, so the failure is not an atom-matching artefact. The same figure style is used: cyan crystal, salmon docked, yellow His41/Cys145.
 
 ![Crystal and redocked N3](results/n3_redock_overlay.png)
 
-### Phytochemical ranking
+### Phytochemical ranking on the validated receptor (PDB 6W63)
 
-Same receptor, same box, same seed. Rank 1 is the most negative score.
+Same ligands, same seed, box from the X77 centroid. Rank 1 is the most negative score. This is the screen on the receptor whose co-crystal pose the protocol recovered.
+
+| Rank | Ligand | Vina score (kcal/mol) | Active torsions |
+|---|---|---|---|
+| 1 | Quercetin | −7.640 | 6 |
+| 2 | Berberine | −7.602 | 2 |
+| 3 | Curcumin | −7.342 | 10 |
+| 4 | Andrographolide | −7.184 | 6 |
+| 5 | Kaempferol | −7.037 | 5 |
+
+These five scores span 0.603 kcal/mol. Quercetin's top pose passes the hydrogen-bond filter to His163 NE2 (H···A 2.179 Å, 161.2°) and Glu166 (backbone N and OE2). The full 6W63 tables are `results/hydrogen_bonds_6w63.csv` and `results/residue_contacts_6w63.csv`.
+
+![Vina scores on 6W63](results/vina_scores_6w63.png)
+
+### Phytochemical ranking on the covalent complex (PDB 6LU7)
+
+Same ligands and seed, in the 30 Å box centred on N3. This receptor is the one whose co-crystal ligand the protocol does **not** reproduce. The rank order is not the same as on 6W63.
 
 | Rank | Ligand | Vina score (kcal/mol) | Active torsions |
 |---|---|---|---|
@@ -98,7 +135,7 @@ Same receptor, same box, same seed. Rank 1 is the most negative score.
 | 4 | Curcumin | −6.910 | 10 |
 | 5 | Andrographolide | −6.883 | 6 |
 
-The five scores span 0.862 kcal/mol. That is a ranking under this protocol, not evidence that the compounds are meaningfully separated.
+These five scores span 0.862 kcal/mol. Kaempferol ranks first here and last on 6W63, which is a reason not to treat either order as a property of the compounds alone. The 6LU7 hydrogen-bond table remains in `results/hydrogen_bonds.csv`.
 
 ![Vina scores](results/vina_scores.png)
 
@@ -117,7 +154,7 @@ python src/main.py
 pytest
 ```
 
-`docking/run_docking.sh` downloads PDB 6LU7 and the five PubChem SDFs if they are not already in `structures/raw/`, writes the receptor and ligand PDBQT files, runs Vina, and rewrites the tables and `results/vina_scores.png`. Pass `--refresh` to download the sources again. The published logs, poses and checksums in `results/run_metadata.json` are the run from 2026-11-24 on Linux x86_64 with the versions pinned in `environment.yml` (Vina binary `f458505-mod`).
+`docking/run_docking.sh` downloads PDB 6LU7, PDB 6W63 and the five PubChem SDFs if they are not already in `structures/raw/`, prepares both receptors, redocks N3 and X77, docks the five ligands into both sites, and rewrites the tables and figures. Pass `--refresh` to download the sources again. The published logs, poses and checksums in `results/run_metadata.json` are the run from 2026-11-24 on Linux x86_64 with the versions pinned in `environment.yml` (Vina binary `f458505-mod`).
 
 Changing the thread count can change a Vina search even with the same seed. This run fixes `--cpu 4`.
 
@@ -127,25 +164,27 @@ CI (`.github/workflows/ci.yml`) lints the Python and runs pytest. It does not la
 
 ```text
 data/ligands.csv                 PubChem CIDs
-data/docking_results.csv         best-pose scores from the published run
-data/ccd/                        RCSB chemical component dictionaries used for N3
-docking/vina_config.txt          box, exhaustiveness, seed
+data/docking_results.csv         scores on covalent PDB 6LU7
+data/docking_results_6w63.csv    scores on non-covalent PDB 6W63
+data/ccd/                        component dictionaries for N3 and X77
+docking/vina_config.txt          6LU7 box, exhaustiveness, seed
+docking/vina_config_6w63.txt     6W63 box, same seed and exhaustiveness
 docking/run_docking.sh           end-to-end script
-docking/logs/                    Vina stdout, including the score-only control
-docking/overlay_n3.pml           PyMOL session for the redocking figure
-structures/raw/                  downloaded PDB and PubChem SDFs
-structures/receptor/             chain A PDB and Meeko PDBQT
-structures/ligands/              prepared PDBQT files and the crystal N3 SDF
-structures/poses/                Vina pose PDBQT files
+docking/logs/                    Vina stdout, including both score-only controls
+docking/overlay_n3.pml           PyMOL session for the 6LU7 negative control
+docking/overlay_x77.pml          PyMOL session for the 6W63 redock
+structures/raw/                  downloaded PDB and PubChem files
+structures/receptor/             chain A PDB and Meeko PDBQT for both structures
+structures/ligands/              prepared ligands, crystal N3 and crystal X77
+structures/poses/                Vina pose files, including 6w63_*.pdbqt
 src/mpro_docking/                fetch, preparation, Vina, RMSD, tables
-src/plot_results.py              write results/vina_scores.png
-tests/                           pytest, including a fixture of chain C
+tests/                           pytest, including chain C and X77 fixtures
 results/                         tables, metadata, figures
 ```
 
 ## Limitations
 
-- The redocking test **failed** the 2 Å threshold for the reason given above. A non-covalent docking score on a covalent crystal structure is a poor pose-reproduction test. It is reported because that is what this protocol does, not because the pose was recovered.
+- Pose recovery was tested on non-covalent PDB 6W63 (X77, 0.915 Å) and failed, as expected, on covalent PDB 6LU7 (N3, 7.266 Å). The 6LU7 phytochemical table uses that covalent-complex receptor: the side chain of Cys145 is still in the adduct geometry, and the protocol was not shown to reproduce a crystal pose in that site.
 - The receptor is rigid, including the Cys145 side chain in its covalent-complex geometry. Histidine tautomer and protonation states come from Meeko templates, not from a constant-pH calculation.
 - Each phytochemical is a single PubChem 3D conformer. Curcumin tautomerism, flavonoid protonation and alternative ring conformers were not searched.
 - One random seed was used. The run is repeatable with that seed and 4 threads; it is not a consensus over seeds.
@@ -155,14 +194,16 @@ results/                         tables, metadata, figures
 
 ## Roadmap
 
-- [x] Redock the co-crystallised inhibitor and report the RMSD that the run actually produced (7.266 Å, above 2 Å)
-- [ ] A non-covalent positive control on a structure that is not a covalent adduct (for example nirmatrelvir / PDB 7SI9)
+- [x] Redock covalent 6LU7 / N3 and report the RMSD (7.266 Å, above 2 Å; negative control)
+- [x] Redock non-covalent 6W63 / X77 with the same protocol (0.915 Å, meets 2 Å)
+- [ ] Another non-covalent complex (for example nirmatrelvir / PDB 7SI9) as a second pose check
 - [ ] 100 ns GROMACS trajectories of the top complexes: RMSD, RMSF, hydrogen bonds
 - [ ] A larger natural-product set (IMPPAT or COCONUT) with an explicit ADMET filter
 
 ## References
 
-- Jin Z, Du X, Xu Y, et al. Structure of Mpro from SARS-CoV-2 and discovery of its inhibitors. *Nature*. 2020;582:289-293. doi:10.1038/s41586-020-2223-y. Structure 6LU7.
+- Jin Z, Du X, Xu Y, et al. Structure of Mpro from SARS-CoV-2 and discovery of its inhibitors. *Nature*. 2020;582:289-293. doi:10.1038/s41586-020-2223-y. Structure 6LU7, the covalent complex.
+- PDB 6W63. Crystal structure of SARS-CoV-2 main protease bound to the non-covalent inhibitor X77, 2.10 Å. RCSB PDB, doi:10.2210/pdb6W63/pdb. Deposited by A. Mesecar / CSGID. No primary literature citation is attached in the file header used here, so the structure is cited by accession.
 - Trott O, Olson AJ. AutoDock Vina: improving the speed and accuracy of docking with a new scoring function, efficient optimization, and multithreading. *J Comput Chem*. 2010;31:455-461. doi:10.1002/jcc.21334.
 - Eberhardt J, Santos-Martins D, Tillack AF, Forli S. AutoDock Vina 1.2.0: new docking methods, expanded force field, and Python bindings. *J Chem Inf Model*. 2021;61:3891-3898. doi:10.1021/acs.jcim.1c00203.
 - Baker EN, Hubbard RE. Hydrogen bonding in globular proteins. *Prog Biophys Mol Biol*. 1984;44:97-179.

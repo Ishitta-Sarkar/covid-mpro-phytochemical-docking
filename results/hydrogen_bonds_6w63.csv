@@ -1,0 +1,9 @@
+ligand_name,donor_side,donor,acceptor,h_a_distance_A,d_h_a_angle_deg
+Quercetin,protein,A:HIS163:NE2,L:UNL1:O,2.179,161.2
+Quercetin,ligand,L:UNL1:O,A:GLU166:OE2,2.277,153.9
+Quercetin,protein,A:GLU166:N,L:UNL1:O,2.348,169.7
+Curcumin,protein,A:THR190:N,L:UNL1:O,2.162,153.6
+Curcumin,protein,A:GLN192:NE2,L:UNL1:O,2.280,153.9
+Andrographolide,protein,A:GLY143:N,L:UNL1:O,2.255,120.3
+Andrographolide,protein,A:SER144:N,L:UNL1:O,2.344,126.4
+Andrographolide,protein,A:CYS145:N,L:UNL1:O,2.460,149.4

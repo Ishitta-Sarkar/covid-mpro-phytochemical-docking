@@ -10,6 +10,14 @@ RECEPTOR_CHAIN = "A"
 LIGAND_CHAIN = "C"
 COVALENT_PROTEIN_RESIDUE = ("CYS", 145)
 
+# Non-covalent pose-reproduction control. 6W63 is Mpro bound to X77;
+# the deposit has no LINK record between the ligand and the protein.
+NONCOVALENT_PDB_ID = "6W63"
+NONCOVALENT_LIGAND_RESNAME = "X77"
+NONCOVALENT_LIGAND_CHAIN = "A"
+NONCOVALENT_LIGAND_RESSEQ = 401
+POSE_RMSD_CUTOFF_A = 2.0
+
 EXHAUSTIVENESS = 16
 NUM_MODES = 9
 ENERGY_RANGE = 3

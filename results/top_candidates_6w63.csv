@@ -1,0 +1,6 @@
+rank,ligand_name,vina_score_kcal_mol,note
+1,Quercetin,-7.640,Ranked by Vina score against non-covalent PDB 6W63. Not a measured affinity.
+2,Berberine,-7.602,Ranked by Vina score against non-covalent PDB 6W63. Not a measured affinity.
+3,Curcumin,-7.342,Ranked by Vina score against non-covalent PDB 6W63. Not a measured affinity.
+4,Andrographolide,-7.184,Ranked by Vina score against non-covalent PDB 6W63. Not a measured affinity.
+5,Kaempferol,-7.037,Ranked by Vina score against non-covalent PDB 6W63. Not a measured affinity.

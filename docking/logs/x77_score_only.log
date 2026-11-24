@@ -1,0 +1,43 @@
+$ vina --config /workspace/docking/vina_config_6w63.txt --ligand /workspace/structures/ligands/x77.pdbqt --cpu 4 --score_only
+
+AutoDock Vina f458505-mod
+#################################################################
+# If you used AutoDock Vina in your work, please cite:          #
+#                                                               #
+# J. Eberhardt, D. Santos-Martins, A. F. Tillack, and S. Forli  #
+# AutoDock Vina 1.2.0: New Docking Methods, Expanded Force      #
+# Field, and Python Bindings, J. Chem. Inf. Model. (2021)       #
+# DOI 10.1021/acs.jcim.1c00203                                  #
+#                                                               #
+# O. Trott, A. J. Olson,                                        #
+# AutoDock Vina: improving the speed and accuracy of docking    #
+# with a new scoring function, efficient optimization and       #
+# multithreading, J. Comp. Chem. (2010)                         #
+# DOI 10.1002/jcc.21334                                         #
+#                                                               #
+# Please see https://github.com/ccsb-scripps/AutoDock-Vina for  #
+# more information.                                             #
+#################################################################
+
+Scoring function : vina
+Rigid receptor: structures/receptor/6W63_receptor.pdbqt
+Ligand: /workspace/structures/ligands/x77.pdbqt
+Grid center: X -20.096 Y 18.844 Z -27.394
+Grid size  : X 22 Y 22 Z 22
+Grid space : 0.375
+Exhaustiveness: 16
+CPU: 4
+Verbosity: 1
+
+Computing Vina grid ... done.
+Estimated Free Energy of Binding   : -8.076 (kcal/mol) [=(1)+(2)+(3)-(4)]
+(1) Final Intermolecular Energy    : -11.853 (kcal/mol)
+    Ligand - Receptor              : -11.853 (kcal/mol)
+    Ligand - Flex side chains      : 0.000 (kcal/mol)
+(2) Final Total Internal Energy    : 0.842 (kcal/mol)
+    Ligand                         : 0.842 (kcal/mol)
+    Flex   - Receptor              : 0.000 (kcal/mol)
+    Flex   - Flex side chains      : 0.000 (kcal/mol)
+(3) Torsional Free Energy          : 3.777 (kcal/mol)
+(4) Unbound System's Energy        : 0.842 (kcal/mol)
+
