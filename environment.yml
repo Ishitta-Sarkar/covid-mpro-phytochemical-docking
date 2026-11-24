@@ -1,0 +1,15 @@
+name: mpro-docking
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11.18
+  - vina=1.2.7
+  - openbabel=3.2.1
+  - meeko=0.8.0
+  - rdkit=2026.03.1
+  - pymol-open-source=3.1.0
+  - plip=3.0.1
+  - matplotlib=3.11.2
+  - numpy=2.4.6
+  - pytest=9.2.0
+  - ruff=0.17.6

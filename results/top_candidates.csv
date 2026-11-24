@@ -1,6 +1,6 @@
-rank,ligand_name,binding_affinity_kcal_mol,interpretation
-1,Quercetin,-8.1,Highest predicted binding affinity among selected ligands
-2,Curcumin,-7.8,Good predicted binding affinity
-3,Kaempferol,-7.6,Good predicted binding affinity
-4,Andrographolide,-7.2,Moderate predicted binding affinity
-5,Berberine,-6.9,Moderate predicted binding affinity
+rank,ligand_name,vina_score_kcal_mol,note
+1,Kaempferol,-7.745,Ranked by Vina score in this run. Not a measured affinity.
+2,Berberine,-7.679,Ranked by Vina score in this run. Not a measured affinity.
+3,Quercetin,-7.518,Ranked by Vina score in this run. Not a measured affinity.
+4,Curcumin,-6.910,Ranked by Vina score in this run. Not a measured affinity.
+5,Andrographolide,-6.883,Ranked by Vina score in this run. Not a measured affinity.

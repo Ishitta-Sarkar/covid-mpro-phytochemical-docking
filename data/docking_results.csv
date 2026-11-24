@@ -1,0 +1,6 @@
+rank,ligand_name,pubchem_cid,compound_class,pdb_id,vina_score_kcal_mol,torsdof,seed,exhaustiveness,cpu,log_file,pose_file
+1,Kaempferol,5280863,Flavonoid,6LU7,-7.745,5,42,16,4,docking/logs/kaempferol.log,structures/poses/kaempferol_out.pdbqt
+2,Berberine,2353,Alkaloid,6LU7,-7.679,2,42,16,4,docking/logs/berberine.log,structures/poses/berberine_out.pdbqt
+3,Quercetin,5280343,Flavonoid,6LU7,-7.518,6,42,16,4,docking/logs/quercetin.log,structures/poses/quercetin_out.pdbqt
+4,Curcumin,969516,Polyphenol,6LU7,-6.910,10,42,16,4,docking/logs/curcumin.log,structures/poses/curcumin_out.pdbqt
+5,Andrographolide,5318517,Diterpenoid lactone,6LU7,-6.883,6,42,16,4,docking/logs/andrographolide.log,structures/poses/andrographolide_out.pdbqt

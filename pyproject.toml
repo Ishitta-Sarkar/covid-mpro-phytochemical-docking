@@ -1,0 +1,24 @@
+[project]
+name = "mpro-docking"
+version = "1.0.0"
+description = "AutoDock Vina workflow for five phytochemicals against SARS-CoV-2 Mpro (PDB 6LU7)."
+requires-python = ">=3.11"
+authors = [{ name = "Ishitta Sarkar" }]
+readme = "README.md"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/mpro_docking/plotting.py" = ["E402"]

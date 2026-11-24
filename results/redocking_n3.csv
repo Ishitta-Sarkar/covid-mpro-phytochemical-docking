@@ -1,0 +1,2 @@
+ligand,description,pdb_id,heavy_atom_rmsd_symmetry_A,heavy_atom_rmsd_direct_A,n_heavy_atoms,n_automorphisms,vina_score_kcal_mol,crystal_pose_score_kcal_mol,torsdof,seed,exhaustiveness,cpu,center_x,center_y,center_z,size_x,size_y,size_z,crystal_c20_sg_distance_A,docked_c20_sg_distance_A,docked_min_heavy_distance_A,formula,protein_atoms_chain_A
+N3,"Chain C of PDB 6LU7 (02J-ALA-VAL-LEU-PJE-010), Cys145 SG-PJE C20 bond omitted",6LU7,7.266,7.295,49,8,-8.52,-3.47,18,42,16,4,-10.729,12.418,68.816,30.0,30.0,30.0,1.793,5.121,2.945,C35H48N6O8,2367

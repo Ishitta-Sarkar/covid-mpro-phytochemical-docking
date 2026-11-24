@@ -1,0 +1,9 @@
+ligand_name,donor_side,donor,acceptor,h_a_distance_A,d_h_a_angle_deg
+Quercetin,protein,A:HIS163:NE2,L:UNL1:O,2.235,138.4
+Curcumin,protein,A:SER144:OG,L:UNL1:O,2.171,139.5
+Curcumin,protein,A:SER144:N,L:UNL1:O,2.283,127.1
+Curcumin,ligand,L:UNL1:O,A:GLY143:N,2.430,166.6
+Kaempferol,ligand,L:UNL1:O,A:GLN189:OE1,1.912,164.7
+Kaempferol,protein,A:HIS163:NE2,L:UNL1:O,2.463,129.5
+Andrographolide,protein,A:HIS163:NE2,L:UNL1:O,2.055,146.5
+Berberine,protein,A:GLY143:N,L:UNL1:O,2.474,128.8
