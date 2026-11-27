@@ -2,7 +2,6 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![AutoDock Vina](https://img.shields.io/badge/AutoDock%20Vina-1.2.7-2E7D32)
-![PDB 6LU7](https://img.shields.io/badge/PDB-6LU7-1565C0)
 [![CI](https://github.com/Ishitta-Sarkar/covid-mpro-phytochemical-docking/actions/workflows/ci.yml/badge.svg)](https://github.com/Ishitta-Sarkar/covid-mpro-phytochemical-docking/actions)
 
 Structure-based docking of five plant-derived compounds against the **SARS-CoV-2 main protease (Mpro, 3CLpro)**, the enzyme that cuts the viral polyproteins. This repository is the computational part of my B.Tech final-year project.
@@ -218,6 +217,6 @@ See [CITATION.cff](CITATION.cff).
 
 Ishitta Sarkar · [ORCID 0009-0008-1028-6010](https://orcid.org/0009-0008-1028-6010)
 
-B.Tech Biotechnology (Honours), Dr. A.P.J. Abdul Kalam Technical University, 2022–2026.
+M.Tech in Bioinformatics (in progress, expected 2028). B.Tech Biotechnology (Honours), Dr. A.P.J. Abdul Kalam Technical University, 2022–2026.
 
 MIT License.
